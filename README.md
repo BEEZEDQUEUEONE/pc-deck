@@ -31,7 +31,7 @@ no administrator rights.
 
 ## Run it
 
-Double-click **`PC Deck.exe`**, or run **`start.bat`**.
+Double-click **`PC Deck.exe`**.
 
 On first run a `config.json` is created next to the executable with sensible defaults. Drives are
 detected automatically.
@@ -46,8 +46,8 @@ winget install Microsoft.VisualStudio.2022.BuildTools --override "--quiet --wait
 cargo build --release
 ```
 
-The result is `target/release/pc-deck.exe` — copy it wherever you like, for example next to
-`start.bat` as `PC Deck.exe`. No Node, npm or web toolchain is involved.
+The result is `target/release/pc-deck.exe` — rename it to `PC Deck.exe` and put it wherever you like.
+No Node, npm or web toolchain is involved.
 
 ## CPU temperatures
 
@@ -138,6 +138,21 @@ web/                static UI (no framework, no build step, inlined at build tim
   you compiled yourself.
 - The helper is fetched at runtime from its own project and is covered by its own licence (MPL-2.0).
   It is not redistributed with this repository.
+
+## Code signing
+
+Builds are unsigned, so another PC may show a SmartScreen warning the first time. Removing that
+needs a certificate you own — an OV/EV code-signing certificate, or Microsoft's Azure Artifact
+Signing (formerly Trusted Signing). With the Windows SDK and a certificate installed:
+
+```bat
+signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 "PC Deck.exe"
+signtool verify /pa "PC Deck.exe"
+```
+
+A signature proves who published the file and that it was not modified afterwards. It does not
+immediately clear SmartScreen: reputation builds as people download and run the same publisher's
+signed builds.
 
 ## Licence
 
