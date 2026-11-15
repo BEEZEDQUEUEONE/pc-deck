@@ -7,6 +7,8 @@ window.
 It is one small `.exe`. No browser tab, no local server, no installer, no account, no telemetry and
 no administrator rights.
 
+**[Download PC Deck.exe](https://github.com/BEEZEDQUEUEONE/pc-deck/releases/latest)** — one file, run it and the window opens.
+
 ## Panels
 
 - **Overview** — CPU load overall and per core with a rolling sparkline, memory use, GPU temperature,
