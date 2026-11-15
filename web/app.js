@@ -122,6 +122,12 @@ function platformLabel(platform, release) {
 }
 
 async function api(url, options = {}) {
+  // Inside the desktop app the page talks to Rust over IPC; in a browser it
+  // falls back to the HTTP server so the same UI can still be developed.
+  if (window.__pcdeck) {
+    return window.__pcdeck.request(url, options.method || 'GET', options.body ?? null);
+  }
+
   const response = await fetch(url, {
     headers: { 'content-type': 'application/json' },
     ...options,
@@ -331,7 +337,7 @@ function renderOverview(data) {
     ['Processor cores', physicalCores ? `${physicalCores} cores / ${data.cpu.threads} threads` : `${data.cpu.threads} threads`],
     ['Uptime', fmtUptime(data.uptimeSec)],
     ['Dashboard memory', `${(data.dashboard.rss / 1048576).toFixed(0)} MB`],
-    ['Node', data.node],
+    ['Engine', data.node],
   ];
 
   $('#system-list').innerHTML = rows
@@ -1443,7 +1449,16 @@ function isInsideRoots(target, roots) {
 
 /* ------------------------------------------------------------------ start */
 
-applyTheme(localStorage.getItem('pcdeck.theme') || 'midnight');
+function storedTheme() {
+  try {
+    return localStorage.getItem('pcdeck.theme');
+  } catch {
+    // Opaque origins (the desktop shell) have no storage; config.json carries the theme there.
+    return null;
+  }
+}
+
+applyTheme(storedTheme() || 'midnight');
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', boot);

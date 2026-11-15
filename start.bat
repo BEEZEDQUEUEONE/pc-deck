@@ -1,20 +1,14 @@
 @echo off
-setlocal
 cd /d "%~dp0"
 
-where node >nul 2>nul
-if errorlevel 1 (
+if not exist "PC Deck.exe" (
   echo.
-  echo   Node.js 18.17 or newer is required.
-  echo   Install it from https://nodejs.org and run this file again.
+  echo   PC Deck.exe is not here yet.
+  echo   Build it with:  cargo build --release
+  echo   then copy target\release\pc-deck.exe next to this file.
   echo.
   pause
   exit /b 1
 )
 
-if /I "%~1"=="--no-browser" goto run
-
-start "" /min cmd /c "timeout /t 2 >nul && start http://127.0.0.1:4317"
-
-:run
-node server/index.js
+start "" "PC Deck.exe"

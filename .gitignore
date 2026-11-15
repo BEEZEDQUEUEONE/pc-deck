@@ -3,6 +3,11 @@ config.json
 tools/
 *.log
 
+# build output
+/target/
+PC Deck.exe
+*.WebView2/
+
 # editor and OS noise
 .freebuff/
 .DS_Store
