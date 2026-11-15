@@ -1,0 +1,25 @@
+{
+  "name": "pc-deck",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-only dashboard for a Windows PC: CPU, memory, GPU, temperatures, fans, a disk treemap, Docker containers and site checks.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "keywords": [
+    "dashboard",
+    "windows",
+    "monitoring",
+    "temperatures",
+    "disk-usage",
+    "treemap",
+    "docker",
+    "local"
+  ],
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  }
+}
