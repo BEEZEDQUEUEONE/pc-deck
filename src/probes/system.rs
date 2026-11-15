@@ -21,10 +21,11 @@ pub struct SystemProbe {
     cpu_cores: usize,
     cpu_threads: usize,
     cpu_speed: u64,
+    host_label: Option<String>,
 }
 
 impl SystemProbe {
-    pub fn start(config: Arc<Mutex<Config>>) -> Self {
+    pub fn start(config: Arc<Mutex<Config>>, host_label: Option<String>) -> Self {
         let mut sys = match System::new() {
             Ok(system) => system,
             Err(_) => {
@@ -35,6 +36,7 @@ impl SystemProbe {
                     cpu_cores: 1,
                     cpu_threads: 1,
                     cpu_speed: 0,
+                    host_label,
                 }
             }
         };
@@ -136,6 +138,7 @@ impl SystemProbe {
             cpu_cores,
             cpu_threads,
             cpu_speed,
+            host_label,
         }
     }
 
@@ -165,7 +168,10 @@ impl SystemProbe {
         };
 
         json!({
-            "host": System::host_name().unwrap_or_default(),
+            "host": self
+                .host_label
+                .clone()
+                .unwrap_or_else(|| System::host_name().unwrap_or_default()),
             "platform": "win32",
             "release": release,
             "arch": std::env::consts::ARCH,
