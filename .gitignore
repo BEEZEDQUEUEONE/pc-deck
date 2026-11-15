@@ -1,0 +1,10 @@
+# local settings and runtime files
+config.json
+tools/
+*.log
+
+# editor and OS noise
+.freebuff/
+.DS_Store
+Thumbs.db
+node_modules/

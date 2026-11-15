@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PC Deck</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d151d'/%3E%3Crect x='8' y='8' width='16' height='16' rx='3' fill='none' stroke='%2345d3b0' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%2345d3b0'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="rail">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-text">
+            <strong>PC Deck</strong>
+            <small>local dashboard</small>
+          </span>
+        </div>
+
+        <nav class="nav" aria-label="Panels">
+          <button class="nav-item is-active" data-panel="overview" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="7" y="7" width="10" height="10" rx="2" />
+              <path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4" />
+            </svg>
+            <span>Overview</span>
+          </button>
+
+          <button class="nav-item" data-panel="disk" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <ellipse cx="12" cy="6" rx="8" ry="3" />
+              <path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6" />
+              <path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" />
+            </svg>
+            <span>Disk space</span>
+          </button>
+
+          <button class="nav-item" data-panel="docker" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" />
+              <path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" />
+            </svg>
+            <span>Containers</span>
+          </button>
+
+          <button class="nav-item" data-panel="site" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18" />
+              <path d="M12 3c2.6 2.6 4 5.7 4 9s-1.4 6.4-4 9c-2.6-2.6-4-5.7-4-9s1.4-6.4 4-9z" />
+            </svg>
+            <span>Site</span>
+          </button>
+
+          <button class="nav-item" data-panel="settings" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+            </svg>
+            <span>Settings</span>
+          </button>
+        </nav>
+
+        <div class="rail-foot">
+          <span class="live-dot" id="live-dot"></span>
+          <span id="live-text">connecting</span>
+          <small>127.0.0.1 only</small>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div class="topbar-id">
+            <h1 id="host-name">This PC</h1>
+            <p id="host-meta">Waiting for the first sample…</p>
+          </div>
+          <div class="topbar-side">
+            <span class="clock" id="clock">--:--</span>
+          </div>
+        </header>
+
+        <!-- Overview ------------------------------------------------------ -->
+        <section id="panel-overview" class="panel is-active" aria-label="Overview">
+          <div class="grid">
+            <article class="card span-7">
+              <div class="card-head">
+                <div class="card-heading">
+                  <p class="card-title">Processor</p>
+                  <p class="card-sub" id="cpu-model">—</p>
+                </div>
+                <p class="metric"><span id="cpu-value">0</span><span class="metric-unit">%</span></p>
+              </div>
+              <div class="spark-wrap" id="cpu-spark"></div>
+              <div class="cores" id="cores"></div>
+            </article>
+
+            <article class="card span-5">
+              <div class="card-head">
+                <div class="card-heading">
+                  <p class="card-title">Memory</p>
+                  <p class="card-sub" id="mem-sub">—</p>
+                </div>
+                <p class="metric"><span id="mem-value">0</span><span class="metric-unit">%</span></p>
+              </div>
+              <div class="spark-wrap" id="mem-spark"></div>
+              <div class="bar"><i id="mem-bar" style="width: 0%"></i></div>
+              <p class="card-foot" id="mem-foot">—</p>
+            </article>
+
+            <article class="card span-7">
+              <div class="card-head">
+                <div class="card-heading">
+                  <p class="card-title">Temperatures &amp; fans</p>
+                  <p class="card-sub" id="sensor-sources">Looking for sensors…</p>
+                </div>
+              </div>
+              <div class="sensor-list" id="sensor-list">
+                <p class="empty">Reading sensors…</p>
+              </div>
+              <div class="hint" id="sensor-hint" hidden></div>
+            </article>
+
+            <article class="card span-5" id="gpu-card" hidden>
+              <div class="card-head">
+                <div class="card-heading">
+                  <p class="card-title">Graphics</p>
+                  <p class="card-sub" id="gpu-name">—</p>
+                </div>
+                <p class="metric metric-sm"><span id="gpu-temp">—</span><span class="metric-unit">°C</span></p>
+              </div>
+              <div class="kv" id="gpu-stats"></div>
+              <div class="bar"><i id="gpu-util-bar" style="width: 0%"></i></div>
+            </article>
+
+            <article class="card span-7">
+              <div class="card-head">
+                <div class="card-heading">
+                  <p class="card-title">Drives</p>
+                  <p class="card-sub" id="drive-sub">—</p>
+                </div>
+              </div>
+              <div class="volumes" id="volumes">
+                <p class="empty">Reading volumes…</p>
+              </div>
+            </article>
+
+            <article class="card span-5">
+              <div class="card-head">
+                <div class="card-heading">
+                  <p class="card-title">This machine</p>
+                  <p class="card-sub">Read-only sampling, nothing is changed</p>
+                </div>
+              </div>
+              <div class="kv" id="system-list">
+                <p class="empty">Waiting…</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Disk ---------------------------------------------------------- -->
+        <section id="panel-disk" class="panel" aria-label="Disk space">
+          <div class="panel-head">
+            <div>
+              <h2>Disk space</h2>
+              <p class="panel-sub">Sizes are measured on demand. Nothing is written, moved or deleted.</p>
+            </div>
+            <div class="panel-actions">
+              <label class="select">
+                <span>Drive</span>
+                <select id="disk-root"></select>
+              </label>
+              <button class="btn" id="disk-rescan" type="button">Rescan</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="disk-bar">
+              <nav class="crumbs" id="crumbs" aria-label="Folder path"></nav>
+              <span class="disk-total mono" id="disk-total"></span>
+            </div>
+
+            <div class="progress" id="disk-progress" hidden>
+              <div class="progress-track"><i></i></div>
+              <p class="progress-text" id="disk-progress-text">Scanning…</p>
+            </div>
+
+            <div class="treemap" id="treemap">
+              <p class="empty">Pick a drive to map its folders.</p>
+            </div>
+
+            <div class="treemap-legend">
+              <span class="legend-key legend-dir"></span><span>folder</span>
+              <span class="legend-key legend-file"></span><span>file</span>
+              <span class="legend-note">Click a folder to go deeper</span>
+            </div>
+
+            <div class="disk-children" id="disk-children"></div>
+            <p class="note" id="disk-note" hidden></p>
+            <p class="note">
+              Reading is limited to the drives in <code>config.json</code>. Locked system files such as
+              <code>pagefile.sys</code> cannot be measured without administrator rights, so they are left out.
+            </p>
+          </div>
+        </section>
+
+        <!-- Docker -------------------------------------------------------- -->
+        <section id="panel-docker" class="panel" aria-label="Containers">
+          <div class="panel-head">
+            <div>
+              <h2>Containers</h2>
+              <p class="panel-sub">Start, stop and restart only — no shell, no deletes, no compose edits.</p>
+            </div>
+            <div class="panel-actions">
+              <button class="btn" id="docker-refresh" type="button">Refresh</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <p class="panel-sub" id="docker-summary">Checking Docker…</p>
+            <div class="containers" id="docker-list"></div>
+          </div>
+        </section>
+
+        <!-- Site ---------------------------------------------------------- -->
+        <section id="panel-site" class="panel" aria-label="Site">
+          <div class="panel-head">
+            <div>
+              <h2>Site</h2>
+              <p class="panel-sub">Uptime checks and quick links for the sites in config.json.</p>
+            </div>
+            <div class="panel-actions">
+              <button class="btn" id="site-refresh" type="button">Check now</button>
+            </div>
+          </div>
+
+          <div class="site-list" id="site-list"></div>
+          <p class="note">
+            Edit these in <a href="#settings" data-open-panel="settings">Settings</a>. Checks run from this PC, so they
+            prove your connection and the site's response.
+          </p>
+        </section>
+
+        <!-- Settings ------------------------------------------------------ -->
+        <section id="panel-settings" class="panel" aria-label="Settings">
+          <div class="panel-head">
+            <div>
+              <h2>Settings</h2>
+              <p class="panel-sub">Saved to config.json, so the file stays the source of truth and can still be edited by hand.</p>
+            </div>
+            <div class="panel-actions">
+              <button class="btn" id="settings-discard" type="button">Discard</button>
+              <button class="btn btn-primary" id="settings-save" type="button">Save changes</button>
+            </div>
+          </div>
+
+          <div class="grid">
+            <article class="card span-12">
+              <div class="card-head">
+                <div class="card-heading">
+                  <p class="card-title">Theme</p>
+                  <p class="card-sub">Previews instantly · saved with the button above</p>
+                </div>
+              </div>
+              <div class="themes" id="theme-picker"></div>
+            </article>
+
+            <article class="card span-7">
+              <div class="card-head">
+                <div class="card-heading">
+                  <p class="card-title">CPU temperatures</p>
+                  <p class="card-sub" id="sensor-settings-status">Windows hides these from normal apps</p>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <label class="switch">
+                  <input type="checkbox" id="sensors-enabled" />
+                  <span></span>
+                </label>
+                <div>
+                  <p class="setting-label">Read from a local sensor helper</p>
+                  <p class="setting-help">LibreHardwareMonitor and OpenHardwareMonitor both serve the same JSON.</p>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="sensors-url">Helper URL</label>
+                <input class="input mono" id="sensors-url" spellcheck="false" placeholder="http://127.0.0.1:8085" />
+              </div>
+
+              <div class="setting-actions">
+                <button class="btn" id="sensors-test" type="button">Test connection</button>
+                <span class="setting-status" id="sensors-status">Not tested yet</span>
+              </div>
+
+              <div class="helper-box">
+                <div class="helper-head">
+                  <span class="setting-label">One-click helper</span>
+                  <span class="pill" id="helper-pill">checking…</span>
+                </div>
+                <p class="setting-help" id="helper-text">LibreHardwareMonitor is the standard sensor helper. It can be downloaded and started from here.</p>
+                <div class="setting-actions">
+                  <button class="btn" id="helper-install" type="button" hidden>Download helper</button>
+                  <button class="btn" id="helper-start" type="button" hidden>Start helper</button>
+                </div>
+                <p class="setting-help" id="helper-note">
+                  Windows asks for administrator permission when the helper starts — it needs that to read sensors. The
+                  dashboard itself never runs elevated.
+                </p>
+              </div>
+
+              <div class="hint">
+                <strong>Getting CPU temperatures ready</strong>
+                <ol class="steps">
+                  <li>Download the helper here, then press <em>Start helper</em> and approve the Windows prompt.</li>
+                  <li>In the helper window open <em>Options → Remote Web Server → Run</em> (port 8085).</li>
+                  <li>Press <em>Test connection</em> above. Package and per-core CPU temperatures, plus fan RPM, appear on the overview automatically.</li>
+                </ol>
+                <p class="setting-help">Already running LibreHardwareMonitor or OpenHardwareMonitor? Just point the URL at it. Without a helper the dashboard still works — you get the GPU sensors that Windows and nvidia-smi expose.</p>
+              </div>
+            </article>
+
+            <article class="card span-5">
+              <div class="card-head">
+                <div class="card-heading">
+                  <p class="card-title">Containers</p>
+                  <p class="card-sub">Docker Desktop has to be running</p>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <label class="switch">
+                  <input type="checkbox" id="docker-enabled" />
+                  <span></span>
+                </label>
+                <div>
+                  <p class="setting-label">Show the containers panel</p>
+                  <p class="setting-help">Only start, stop and restart are allowed.</p>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="docker-interval">Refresh every</label>
+                <select class="input" id="docker-interval">
+                  <option value="4000">4 seconds</option>
+                  <option value="6000">6 seconds</option>
+                  <option value="10000">10 seconds</option>
+                  <option value="20000">20 seconds</option>
+                  <option value="30000">30 seconds</option>
+                </select>
+              </div>
+
+              <p class="setting-help" id="docker-settings-note">Checking Docker…</p>
+            </article>
+
+            <article class="card span-12">
+              <div class="card-head">
+                <div class="card-heading">
+                  <p class="card-title">Sites</p>
+                  <p class="card-sub">Used by the Site panel · checked every 45 seconds</p>
+                </div>
+                <button class="btn btn-sm" id="site-add" type="button">Add site</button>
+              </div>
+              <div class="sites-editor" id="sites-editor"></div>
+            </article>
+
+            <article class="card span-12">
+              <div class="card-head">
+                <div class="card-heading">
+                  <p class="card-title">Drives</p>
+                  <p class="card-sub">The disk map can only read these locations</p>
+                </div>
+                <button class="btn btn-sm" id="root-add" type="button">Add drive</button>
+              </div>
+              <div class="chips" id="roots-editor"></div>
+              <div class="field-inline" id="root-add-row" hidden>
+                <input class="input mono" id="root-new" spellcheck="false" placeholder="D:\" />
+                <button class="btn btn-sm" id="root-confirm" type="button">Add</button>
+                <button class="btn btn-sm" id="root-cancel" type="button">Cancel</button>
+              </div>
+            </article>
+          </div>
+
+          <div class="settings-bar" id="settings-bar">
+            <span class="settings-bar-state" id="settings-state">All changes saved</span>
+            <div class="panel-actions">
+              <button class="btn" id="settings-discard-2" type="button">Discard</button>
+              <button class="btn btn-primary" id="settings-save-2" type="button">Save changes</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="tooltip" id="tooltip" hidden></div>
+    <div class="toast" id="toast" hidden></div>
+
+    <svg width="0" height="0" aria-hidden="true" style="position: absolute">
+      <defs>
+        <linearGradient id="fill-accent" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#45d3b0" stop-opacity="0.28" />
+          <stop offset="100%" stop-color="#45d3b0" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="fill-blue" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#6aa8f0" stop-opacity="0.28" />
+          <stop offset="100%" stop-color="#6aa8f0" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "port": 4317,
+  "theme": "midnight",
+  "diskRoots": [],
+  "refreshMs": 2000,
+  "sensorRefreshMs": 5000,
+  "docker": {
+    "enabled": true,
+    "refreshMs": 6000
+  },
+  "libreHardwareMonitor": {
+    "enabled": true,
+    "url": "http://127.0.0.1:8085"
+  },
+  "sites": [
+    {
+      "name": "My site",
+      "url": "https://example.com",
+      "adminUrl": "",
+      "links": []
+    }
+  ]
+}
