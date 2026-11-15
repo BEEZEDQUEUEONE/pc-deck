@@ -1,16 +1,17 @@
 # PC Deck
 
-A local dashboard for a single Windows PC. Live CPU, memory, GPU, temperatures and fan speeds, a
-WizTree-style disk map, Docker containers, and uptime checks for your sites — in one page that only
-your machine can open.
+A native Windows desktop app for looking at one PC. Live CPU, memory, GPU, temperatures and fan
+speeds, a WizTree-style disk map, Docker containers, and uptime checks for your sites — in a single
+window.
 
-It runs on Node with **zero dependencies**. No build step, no installer, no account, no telemetry.
+It is one small `.exe`. No browser tab, no local server, no installer, no account, no telemetry and
+no administrator rights.
 
 ## Panels
 
 - **Overview** — CPU load overall and per core with a rolling sparkline, memory use, GPU temperature,
-  fan, load, VRAM and power, drive capacity, uptime, and how much memory the dashboard itself uses.
-- **Disk space** — a squarified treemap of a folder, with its largest files, a ranked list below it and
+  fan, load, VRAM and power, drive capacity, uptime, and how much memory the app itself uses.
+- **Disk space** — a squarified treemap of a folder, its largest files, a ranked list below it and
   click-to-drill navigation. Scans run on demand, are cached for ten minutes and report when a folder
   was only partly measured.
 - **Containers** — lists Docker containers and allows start, stop and restart. Nothing else: no shell,
@@ -22,27 +23,35 @@ It runs on Node with **zero dependencies**. No build step, no installer, no acco
 
 ## Requirements
 
-- Windows 10 or 11
-- Node.js **18.17 or newer**
+- Windows 10 or 11, 64-bit
+- **WebView2 runtime** — included with Windows 11 and up-to-date Windows 10. If it is missing, install
+  Microsoft's Evergreen runtime once.
 - Optional: Docker Desktop for the containers panel
-- Optional: a sensor helper for CPU temperatures (the dashboard can download one for you)
+- Optional: a sensor helper for CPU temperatures (the app can download one for you)
 
 ## Run it
 
+Double-click **`PC Deck.exe`**, or run **`start.bat`**.
+
+On first run a `config.json` is created next to the executable with sensible defaults. Drives are
+detected automatically.
+
+## Build from source
+
+You need Rust stable and the Microsoft C++ build tools (Rust on Windows links against MSVC):
+
 ```bash
-npm start
+rustup-init -y --default-toolchain stable-x86_64-pc-windows-msvc
+winget install Microsoft.VisualStudio.2022.BuildTools --override "--quiet --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+cargo build --release
 ```
 
-Then open <http://127.0.0.1:4317>. There is nothing to install first: the project has no dependencies.
-
-On Windows you can also double-click **`start.bat`**, which starts the dashboard and opens it for you.
-
-On first run a `config.json` is created next to `package.json` with sensible defaults. Drives are
-detected automatically.
+The result is `target/release/pc-deck.exe` — copy it wherever you like, for example next to
+`start.bat` as `PC Deck.exe`. No Node, npm or web toolchain is involved.
 
 ## CPU temperatures
 
-Windows does not expose CPU temperatures to normal user programs. On most desktops there is no ACPI
+Windows does not expose CPU temperatures to normal programs. On most desktops there is no ACPI
 thermal zone to read at all, so any app that shows CPU package, per-core or motherboard temperatures —
 LibreHardwareMonitor, OpenHardwareMonitor, HWiNFO, Core Temp — loads a small kernel driver to talk to
 the chip. That driver requires administrator rights, once.
@@ -50,40 +59,39 @@ the chip. That driver requires administrator rights, once.
 PC Deck does not ship or load a driver itself. In **Settings → CPU temperatures** you can:
 
 1. Press **Download helper**. It fetches the official LibreHardwareMonitor release from GitHub, verifies
-   its SHA-256 checksum and unpacks it into `tools/` inside this project.
+   its SHA-256 checksum and unpacks it into `tools\` next to the executable.
 2. Press **Start helper**. Windows shows its permission prompt; approve it. That prompt belongs to the
-   helper, not to the dashboard.
+   helper, not to PC Deck.
 3. In the helper window open **Options → Remote Web Server → Run** (port 8085).
 4. Press **Test connection** here.
 
 Temperatures and fan RPM then appear on the overview, and are picked up automatically on later runs.
 Already running a compatible helper? Skip the download and point the URL field at it.
 
-Without a helper the dashboard still works, using the GPU sensors that nvidia-smi exposes.
+Without a helper the app still works, using the GPU sensors that nvidia-smi exposes.
 
 ## Security model
 
 This is a single-machine tool, and it is built to stay that way:
 
-- The server binds to `127.0.0.1` only; nothing on your network can reach it.
-- Requests whose `Host` header is not loopback are rejected (DNS rebinding), and state-changing
-  requests must come from the dashboard's own origin.
-- The dashboard never runs elevated. Only the optional helper does, launched through the normal Windows
+- **No network port is opened.** There is no HTTP server to connect to. The interface is embedded in
+  the executable and speaks to Rust through WebView2's in-process IPC, so another device has nothing
+  to reach.
+- The app runs as your normal user. Only the optional helper is elevated, through the standard Windows
   consent prompt.
 - No shell is ever executed with user input. Commands use fixed argument lists; a container action is
   checked against the live container list before it runs.
-- Files are only ever read, and only for their names and sizes, and only inside the drives listed in
+- Files are only ever read, only for their names and sizes, and only inside the drives listed in
   `config.json`. Nothing is written, moved or deleted outside `config.json` and the helper folder.
-- No telemetry, no analytics, no outbound requests except the site checks you configure and the
-  optional helper download.
+- Outbound requests happen only for the site checks you configure and the optional helper download.
+- No telemetry, no analytics, no accounts.
 
 ## Configuration
 
-`config.json` is the source of truth and can be edited by hand or from the Settings panel.
+`config.json` sits next to the executable and can be edited by hand or from the Settings panel.
 
 | Key | Default | Purpose |
 | --- | --- | --- |
-| `port` | `4317` | Local port. Restart after changing it. |
 | `theme` | `midnight` | `midnight`, `ember`, `violet` or `daylight`. |
 | `diskRoots` | detected drives | Folders the disk map may read. Absolute paths only. |
 | `refreshMs` | `2000` | How often the overview samples the machine. |
@@ -99,33 +107,39 @@ URLs accept `example.com` as well as `https://example.com`.
 ## Project layout
 
 ```
-server/
-  index.js          HTTP server, API routes, static files
-  config.js         defaults, validation, settings persistence
-  security.js       loopback host/origin checks and response headers
+src/
+  main.rs           native window, embedded UI, IPC wiring
+  api.rs            request dispatcher (same payloads the UI has always used)
+  config.rs         defaults, validation, settings persistence
+  platform.rs       fixed-argument command runner, Windows version, helpers
+  bridge.js         page-side bridge that turns API calls into IPC
   probes/
-    system.js       CPU, memory, volumes
-    sensors.js      GPU, helper, ACPI sensor aggregation
+    system.rs       CPU, memory, volumes
+    sensors.rs      GPU, helper, ACPI sensor aggregation
     sensors.ps1     PowerShell bridge for names/fans/thermal zones
-    helper.js       optional LibreHardwareMonitor download and launch
-    disktree.js     on-demand disk measurement with limits and caching
-    docker.js       container list and start/stop/restart
-    sites.js        uptime checks
-  util/run.js       no-shell command runner with timeouts
-web/                static UI (no framework, no build step)
+    helper.rs       optional LibreHardwareMonitor download and launch
+    disktree.rs     on-demand disk measurement with limits and caching
+    docker.rs       container list and start/stop/restart
+    sites.rs        uptime checks
+web/                static UI (no framework, no build step, inlined at build time)
 ```
 
 ## Known limitations
 
 - CPU temperatures require the helper described above; there is no driver-free way on Windows.
+- The app needs the WebView2 runtime, which is part of Windows 11 but may need installing on older
+  Windows 10 machines.
 - Locked system files such as `pagefile.sys` cannot be measured without administrator rights, so a
   drive total can read lower than Windows reports. Files protected by permissions are skipped too.
 - A disk scan is capped at 1.5 million files or 120 seconds. Reaching either marks the result as partial
   rather than hanging.
 - Site checks are one request from your PC; there is no history or alerting.
+- There is no installer and no code signing, so Windows SmartScreen may ask once before opening a build
+  you compiled yourself.
 - The helper is fetched at runtime from its own project and is covered by its own licence (MPL-2.0).
   It is not redistributed with this repository.
 
 ## Licence
 
-MIT — see [LICENSE](LICENSE).
+All rights reserved. The source is published so it can be read; copying, modification, redistribution
+or republishing any part of it is not permitted. See [LICENSE](LICENSE).
