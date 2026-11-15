@@ -36,7 +36,8 @@ administrator rights. Double-click it and the window opens.
 - **Overview** — CPU load overall and per core with a rolling sparkline, memory, GPU temperature, fan,
   load, VRAM and power, drive capacity, uptime, and how much memory the app itself uses.
 - **Overlay** — the **Overlay** button in the header pins a small always-on-top card with CPU, memory and
-  GPU beside your work or game. Drag it by its title bar; hide it with the × button or Esc.
+  GPU beside your work or game. Drag it by its title bar; hide it with the × button, or with Esc
+  while the overlay has focus.
 - **Disk space** — a WizTree-style squarified treemap with the largest files, a ranked list and
   click-to-drill navigation. Scans are on demand, cached for ten minutes, and capped so a huge drive
   can never hang the app.
@@ -119,7 +120,7 @@ Without a helper the app still works, using the GPU sensors that nvidia-smi expo
 | `docker.refreshMs` | `6000` | Container list refresh interval. |
 | `libreHardwareMonitor.enabled` | `true` | Use a local sensor helper. |
 | `libreHardwareMonitor.url` | `http://127.0.0.1:8085` | Helper address; must be loopback. |
-| `sites` | one example | Site entries, admin URLs and quick links. |
+| `sites` | empty | Site entries, admin URLs and quick links. |
 
 URLs accept `example.com` as well as `https://example.com`.
 
@@ -144,7 +145,7 @@ changing a probe.
 ```
 src/
   main.rs           native window, embedded UI, IPC wiring
-  api.rs            request dispatcher (same payloads the UI has always used)
+  api.rs            request dispatcher for the UI's API calls
   config.rs         defaults, validation, settings persistence
   platform.rs       fixed-argument command runner, Windows version, helpers
   bridge.js         page-side bridge that turns API calls into IPC
@@ -157,6 +158,7 @@ src/
     docker.rs       container list and start/stop/restart
     sites.rs        uptime checks
 web/                static UI (no framework, no build step, inlined at build time)
+  overlay.html      compact always-on-top card
 ```
 
 ## Known limitations
