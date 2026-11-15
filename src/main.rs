@@ -160,9 +160,13 @@ fn main() {
         eprintln!("{note}");
     }
 
+    // `--label` replaces the machine name in the header, which keeps public
+    // screenshots free of a real hostname.
+    let host_label = std::env::args().find_map(|arg| arg.strip_prefix("--label=").map(str::to_string));
+
     let config = Arc::new(Mutex::new(config));
     let state = Arc::new(AppState {
-        system: SystemProbe::start(Arc::clone(&config)),
+        system: SystemProbe::start(Arc::clone(&config), host_label),
         sensors: Sensors::start(Arc::clone(&config)),
         config,
         disk: DiskTree::default(),
@@ -201,9 +205,21 @@ fn main() {
     let _ = std::fs::create_dir_all(&data_dir);
     let mut web_context = wry::WebContext::new(Some(data_dir));
 
+    // `--panel=disk` opens a given tab after startup. Used for screenshots and
+    // for checking a panel without clicking through the window.
+    let mut html = build_html();
+    if let Some(panel) = std::env::args().find_map(|arg| arg.strip_prefix("--panel=").map(str::to_string)) {
+        if panel.chars().all(|c| c.is_ascii_alphanumeric()) {
+            let click = format!(
+                "<script>setTimeout(function(){{var el=document.querySelector('.nav-item[data-panel=\"{panel}\"]');if(el)el.click();}},2200);</script>"
+            );
+            html = html.replace("</body>", &format!("{click}</body>"));
+        }
+    }
+
     let ipc_state = Arc::clone(&state);
     let webview = WebViewBuilder::new_with_web_context(&mut web_context)
-        .with_html(build_html())
+        .with_html(html)
         .with_ipc_handler(move |request: wry::http::Request<String>| {
             let raw = request.body().to_string();
             let state = Arc::clone(&ipc_state);
