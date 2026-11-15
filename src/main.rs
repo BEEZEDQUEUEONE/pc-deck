@@ -1,3 +1,5 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 mod api;
 mod config;
 mod platform;
@@ -97,6 +99,21 @@ fn selftest(state: &Arc<AppState>) {
         serde_json::to_string(&json!({ "sites": crate::probes::sites::check(&config.sites, true) }))
             .unwrap_or_default()
     );
+    // Round-trip the settings panel: read the view, then save it back unchanged.
+    let view = crate::api::handle(state, "/api/settings", "GET", None);
+    println!(
+        "settings-view {} {}",
+        view.0,
+        serde_json::to_string(&view.1).unwrap_or_default()
+    );
+    let current = view.1.get("settings").cloned().unwrap_or(json!({}));
+    let saved = crate::api::handle(state, "/api/settings", "PUT", Some(current));
+    println!(
+        "settings-save {} {}",
+        saved.0,
+        serde_json::to_string(&saved.1).unwrap_or_default()
+    );
+
     println!(
         "settings {}",
         serde_json::to_string(&json!({
