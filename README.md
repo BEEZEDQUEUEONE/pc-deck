@@ -172,21 +172,6 @@ web/                static UI (no framework, no build step, inlined at build tim
 - The helper is fetched at runtime from its own project and is covered by its own licence (MPL-2.0).
   It is not redistributed here.
 
-## Code signing
-
-Builds are unsigned, so another PC may show a SmartScreen warning the first time. Removing that needs
-a certificate you own — an OV/EV code-signing certificate, or Microsoft's Azure Artifact Signing
-(formerly Trusted Signing). With the Windows SDK and a certificate installed:
-
-```bat
-signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 "PC-Deck.exe"
-signtool verify /pa "PC-Deck.exe"
-```
-
-A signature proves who published the file and that it was not modified afterwards. It does not
-immediately clear SmartScreen: reputation builds as people download and run the same publisher's
-signed builds.
-
 ## Licence
 
 All rights reserved. The source is published so it can be read; copying, modification, redistribution
