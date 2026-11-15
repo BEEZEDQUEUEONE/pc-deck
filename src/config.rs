@@ -31,7 +31,6 @@ impl Site {
 
 #[derive(Clone, Debug)]
 pub struct Config {
-    pub port: u16,
     pub theme: String,
     pub disk_roots: Vec<String>,
     pub refresh_ms: u64,
@@ -229,12 +228,6 @@ pub fn normalize(raw: &Value) -> Config {
         .to_string();
 
     Config {
-        port: clamp(
-            source.and_then(|o| o.get("port")).unwrap_or(&Value::Null),
-            1024,
-            65535,
-            4317,
-        ) as u16,
         theme,
         disk_roots: if roots.is_empty() { detect_roots() } else { roots },
         refresh_ms: clamp(
@@ -292,7 +285,6 @@ pub fn load() -> (Config, Option<String>) {
         }
     } else {
         let defaults = Config {
-            port: 4317,
             theme: "midnight".to_string(),
             disk_roots: detect_roots(),
             refresh_ms: 2000,
@@ -313,7 +305,6 @@ pub fn load() -> (Config, Option<String>) {
 
 pub fn to_value(config: &Config) -> Value {
     json!({
-        "port": config.port,
         "theme": config.theme,
         "diskRoots": config.disk_roots,
         "refreshMs": config.refresh_ms,
