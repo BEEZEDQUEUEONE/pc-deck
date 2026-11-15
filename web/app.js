@@ -1460,6 +1460,17 @@ function storedTheme() {
 
 applyTheme(storedTheme() || 'midnight');
 
+// The floating overlay is a second native window, so it only exists in the
+// desktop shell; the button hides itself when the UI runs in a browser.
+const overlayToggle = $('#overlay-toggle');
+if (overlayToggle) {
+  if (window.__pcdeck && window.__pcdeck.command) {
+    overlayToggle.addEventListener('click', () => window.__pcdeck.command('overlay'));
+  } else {
+    overlayToggle.hidden = true;
+  }
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', boot);
 } else {
