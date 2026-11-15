@@ -1,6 +1,6 @@
 [package]
 name = "pc-deck"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 description = "Local Windows dashboard for CPU, GPU, temperatures, disks, Docker and sites."
 license = "LicenseRef-Proprietary"

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PC Deck Overlay</title>
+    <style>
+      :root { color-scheme: dark; }
+      html, body { margin: 0; height: 100%; background: #0a1216; overflow: hidden; }
+      body {
+        border: 1px solid #1b3037;
+        border-radius: 14px;
+        color: #e6f2f1;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        box-sizing: border-box;
+      }
+      .bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 10px 4px;
+        cursor: default;
+      }
+      .brand {
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #6d8b91;
+      }
+      .close {
+        border: 0;
+        background: transparent;
+        color: #6d8b91;
+        font-size: 13px;
+        line-height: 1;
+        padding: 2px 4px;
+        cursor: pointer;
+        border-radius: 6px;
+      }
+      .close:hover { color: #e6f2f1; background: #16272d; }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 7px;
+        padding: 2px 9px 9px;
+      }
+      .cell {
+        background: #0f1d22;
+        border: 1px solid #172a31;
+        border-radius: 10px;
+        padding: 7px 9px 8px;
+      }
+      .k {
+        font-size: 9px;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        color: #6d8b91;
+        margin-bottom: 3px;
+      }
+      .v {
+        font-size: 21px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        font-variant-numeric: tabular-nums;
+        color: #eaf6f4;
+      }
+      .s { font-size: 10px; color: #6d8b91; margin-top: 1px; }
+    </style>
+  </head>
+  <body>
+    <div class="bar" id="bar">
+      <span class="brand">PC Deck</span>
+      <button class="close" id="close" type="button" title="Hide overlay" aria-label="Hide overlay">✕</button>
+    </div>
+    <div class="grid">
+      <div class="cell">
+        <div class="k">CPU</div>
+        <div class="v" id="cpu">—</div>
+        <div class="s" id="cpu-sub">load</div>
+      </div>
+      <div class="cell">
+        <div class="k">Memory</div>
+        <div class="v" id="mem">—</div>
+        <div class="s" id="mem-sub">used</div>
+      </div>
+      <div class="cell">
+        <div class="k">GPU</div>
+        <div class="v" id="gpu">—</div>
+        <div class="s" id="gpu-sub">temp</div>
+      </div>
+    </div>
+    <!--BRIDGE-->
+    <script>
+      (function () {
+        const text = (id, value) => {
+          const element = document.getElementById(id);
+          if (element) element.textContent = value;
+        };
+
+        async function tick() {
+          if (!window.__pcdeck) return;
+          try {
+            const [system, sensors] = await Promise.all([
+              window.__pcdeck.request('/api/system', 'GET', null),
+              window.__pcdeck.request('/api/sensors', 'GET', null),
+            ]);
+
+            const cpu = Math.round(system.cpu.usage);
+            text('cpu', cpu + '%');
+            text('cpu-sub', `${system.cpu.threads} threads`);
+
+            text('mem', Math.round(system.memory.usage) + '%');
+            text('mem-sub', (system.memory.used / 1073741824).toFixed(1) + ' GB');
+
+            const gpu = sensors.gpu;
+            if (gpu && gpu.temperatureC != null) {
+              text('gpu', Math.round(gpu.temperatureC) + '°');
+              text('gpu-sub', Math.round(gpu.utilizationPercent || 0) + '% load');
+            } else {
+              text('gpu', '—');
+              text('gpu-sub', 'no GPU');
+            }
+          } catch (error) {
+            text('cpu', '—');
+          }
+        }
+
+        document.getElementById('close').addEventListener('click', () => {
+          if (window.__pcdeck) window.__pcdeck.command('hide');
+        });
+
+        document.getElementById('bar').addEventListener('mousedown', (event) => {
+          if (event.target.closest('button')) return;
+          if (window.__pcdeck) window.__pcdeck.command('drag');
+        });
+
+        window.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && window.__pcdeck) window.__pcdeck.command('hide');
+        });
+
+        tick();
+        setInterval(tick, 2000);
+      })();
+    </script>
+  </body>
+</html>

@@ -35,6 +35,8 @@ administrator rights. Double-click it and the window opens.
 
 - **Overview** — CPU load overall and per core with a rolling sparkline, memory, GPU temperature, fan,
   load, VRAM and power, drive capacity, uptime, and how much memory the app itself uses.
+- **Overlay** — the **Overlay** button in the header pins a small always-on-top card with CPU, memory and
+  GPU beside your work or game. Drag it by its title bar; hide it with the × button or Esc.
 - **Disk space** — a WizTree-style squarified treemap with the largest files, a ranked list and
   click-to-drill navigation. Scans are on demand, cached for ten minutes, and capped so a huge drive
   can never hang the app.
@@ -44,6 +46,10 @@ administrator rights. Double-click it and the window opens.
   helper. Everything is written to `config.json` next to the executable.
 
 ![Disk space treemap](docs/disk.png)
+
+<p align="center">
+  <img src="docs/overlay.png" width="332" alt="The floating overlay with CPU, memory and GPU">
+</p>
 
 ## Download and run
 

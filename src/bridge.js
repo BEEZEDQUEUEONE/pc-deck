@@ -24,6 +24,13 @@
   });
 
   window.__pcdeck = {
+    command: function (name) {
+      try {
+        window.ipc.postMessage(JSON.stringify({ cmd: name }));
+      } catch (error) {
+        /* not running inside the desktop shell */
+      }
+    },
     request: function (url, method, body) {
       return new Promise(function (resolve, reject) {
         var id = nextId++;
