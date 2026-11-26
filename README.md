@@ -30,8 +30,6 @@
 
 https://github.com/user-attachments/assets/0cc94e74-c2b7-4775-a518-237233fbdbb7
 
-![PC Deck overview](docs/overview.png)
-
 ## What it is
 
 One small `.exe`. No installer, no browser tab, no local server, no account, no telemetry, and no
