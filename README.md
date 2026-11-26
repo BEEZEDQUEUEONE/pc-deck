@@ -26,11 +26,9 @@
 > **source code**, which contains no executable. Download the app from
 > **[Releases → PC-Deck.exe](https://github.com/BEEZEDQUEUEONE/pc-deck/releases/latest)**.
 
-<p align="center">
-  <a href="docs/showcase.mp4"><img src="docs/showcase.jpg" width="860" alt="Play the 22-second PC Deck showcase"></a>
-</p>
+<p align="center"><strong>22-second showcase</strong></p>
 
-<p align="center"><a href="docs/showcase.mp4"><strong>▶ Watch the 22-second showcase</strong></a></p>
+https://github.com/user-attachments/assets/0cc94e74-c2b7-4775-a518-237233fbdbb7
 
 ![PC Deck overview](docs/overview.png)
 
